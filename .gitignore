@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Env files
+.env
+
+# Index / caches
+data/index/
+*.pickle
+*.pkl
+
+# Outputs
+outputs/*
+!outputs/.gitkeep
+
+# Logs
+*.log
