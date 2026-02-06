@@ -1,8 +1,11 @@
+I'll create a comprehensive README file with the complete directory structure and all details in a canvas artifact.
+
 ```markdown
 # COREP Reporting Assistant (Prototype)
 
-Streamlit prototype for an **LLM-assisted PRA COREP Regulatory Reporting Assistant** for UK banks. The demo supports a constrained subset of COREP focused on:
+Streamlit prototype for an **LLM-assisted PRA COREP Regulatory Reporting Assistant** for UK banks.
 
+The demo supports a constrained subset of COREP focused on:
 - **C01.00 Own Funds (extract)**
 - **C02.00 Capital Ratios (extract)**
 
@@ -31,43 +34,97 @@ It accepts a natural-language question + simple scenario inputs, retrieves relev
 ## Repository Structure
 
 ```
-
 corep_reporting_assistant/
-app.py
-core/
-llm_prompts.py
-rag.py
-pipeline.py
-utils.py
-data/
-README.md
-demo_corep_instructions.txt
-index/                 (generated; ignored by git)
-outputs/
-.gitkeep               (committed)
-*.csv, *.xlsx, *.json  (generated; ignored by git)
-.env                     (local only; ignored by git)
-.env.example             (committed)
-.gitignore
-requirements.txt
-README.md
-
-````
+│
+├── app.py                          # Main Streamlit application entry point
+│
+├── core/                           # Core business logic modules
+│   ├── __init__.py                # Package initializer
+│   ├── llm_prompts.py             # LLM prompt templates and formatting
+│   ├── rag.py                     # RAG retrieval logic and indexing
+│   ├── pipeline.py                # Main processing pipeline orchestration
+│   └── utils.py                   # Helper utilities and common functions
+│
+├── data/                          # Document corpus for RAG retrieval
+│   ├── README.md                  # Instructions for adding documents
+│   ├── demo_corep_instructions.txt # Sample regulatory guidance document
+│   └── index/                     # Generated retrieval index
+│       └── (vector embeddings and metadata - auto-generated, git-ignored)
+│
+├── outputs/                       # Generated reports and audit logs
+│   ├── .gitkeep                   # Placeholder to track directory (committed)
+│   ├── corep_C0100_extract.csv   # Own Funds extract (generated, git-ignored)
+│   ├── corep_C0200_extract.csv   # Capital Ratios extract (generated, git-ignored)
+│   ├── corep_extracts.xlsx       # Combined Excel workbook (generated, git-ignored)
+│   ├── audit_log.json            # Field-level citations log (generated, git-ignored)
+│   └── validation_report.json    # Validation results (generated, git-ignored)
+│
+├── .env                           # Local environment configuration (git-ignored)
+├── .env.example                   # Environment variables template (committed)
+├── .gitignore                     # Git ignore rules for sensitive/generated files
+├── requirements.txt               # Python package dependencies
+└── README.md                      # This documentation file
+```
 
 ---
 
-## Setup
+## Detailed Directory Explanation
+
+### Root Level Files
+
+- **`app.py`**: Main Streamlit application that orchestrates the UI, user inputs, and pipeline execution
+- **`.env`**: Contains sensitive configuration (API keys) - never committed to git
+- **`.env.example`**: Template showing required environment variables - committed for reference
+- **`.gitignore`**: Specifies files/directories to exclude from version control
+- **`requirements.txt`**: Lists all Python dependencies with versions
+- **`README.md`**: Complete project documentation (this file)
+
+### `core/` Directory
+
+Contains all business logic separated into focused modules:
+
+- **`__init__.py`**: Makes `core` a Python package
+- **`llm_prompts.py`**: Defines system prompts, user prompt templates, and output schemas
+- **`rag.py`**: Handles document ingestion, chunking, embedding, and retrieval
+- **`pipeline.py`**: Orchestrates the complete workflow from input to validated output
+- **`utils.py`**: Common helper functions (JSON parsing, file I/O, formatting)
+
+### `data/` Directory
+
+Storage for regulatory documents used in RAG retrieval:
+
+- **`README.md`**: Instructions on adding and managing source documents
+- **`demo_corep_instructions.txt`**: Sample regulatory text for testing
+- **`index/`**: Auto-generated directory containing vector embeddings and retrieval metadata (git-ignored)
+
+**Supported formats**: PDF, TXT, MD
+
+### `outputs/` Directory
+
+All generated files from pipeline execution:
+
+- **`.gitkeep`**: Empty file to ensure `outputs/` directory is tracked by git
+- **`corep_C0100_extract.csv`**: Own Funds data in CSV format
+- **`corep_C0200_extract.csv`**: Capital Ratios data in CSV format
+- **`corep_extracts.xlsx`**: Optional combined Excel workbook with multiple sheets
+- **`audit_log.json`**: Complete audit trail with field-level citations
+- **`validation_report.json`**: Validation results including errors and warnings
+
+All generated outputs are git-ignored to prevent committing potentially sensitive data.
+
+---
+
+## Setup Instructions
 
 ### 1) Create and activate a virtual environment (recommended)
 
-Windows (PowerShell or CMD):
+**Windows (PowerShell or CMD):**
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
-````
+```
 
-macOS/Linux:
-
+**macOS/Linux:**
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -83,16 +140,23 @@ pip install -r requirements.txt
 
 Copy `.env.example` to `.env` and set your OpenAI API key:
 
+**Windows:**
 ```bash
 copy .env.example .env
 ```
 
+**macOS/Linux:**
+```bash
+cp .env.example .env
+```
+
 Edit `.env`:
+```env
+OPENAI_API_KEY=your_api_key_here
+OPENAI_MODEL=gpt-4-turbo-preview
+```
 
-* `OPENAI_API_KEY=...`
-* `OPENAI_MODEL=gpt-4.1-mini` (default)
-
-Note: `.env` must never be committed.
+**Important**: `.env` must never be committed to version control.
 
 ---
 
@@ -103,23 +167,26 @@ The demo requires at least one source document in `./data` to produce grounded c
 ### Minimum demo corpus (quick start)
 
 A ready-to-use test file is included:
+- `data/demo_corep_instructions.txt`
 
-* `data/demo_corep_instructions.txt`
+### Adding your own documents
 
-You can replace/add:
-
-* PRA Rulebook extracts (PDF/TXT)
-* EBA COREP / ITS instructions (PDF/TXT/MD)
+Place regulatory documents in `data/`:
+- PRA Rulebook extracts (PDF/TXT)
+- EBA COREP / ITS instructions (PDF/TXT/MD)
+- Internal compliance guidelines (TXT/MD)
 
 ### Refresh corpus
 
-From the app sidebar, click **Refresh corpus** to rebuild the local retrieval index at:
-
-* `data/index/` (generated and ignored by git)
+After adding documents:
+1. Launch the Streamlit app
+2. In the sidebar, click **Refresh corpus**
+3. Wait for indexing to complete
+4. The retrieval index will be rebuilt in `data/index/`
 
 ---
 
-## Run the App
+## Run the Application
 
 ```bash
 streamlit run app.py
@@ -131,116 +198,216 @@ Open the URL shown in your terminal (usually `http://localhost:8501`).
 
 ## How the Demo Works (High-Level)
 
-1. **User input**
+### Workflow Steps
 
-   * Question: what to populate
-   * Scenario: CET1, deductions, AT1, T2, TREA (simple numeric inputs)
+1. **User Input**
+   - Natural language question (e.g., "Populate C01.00 Own Funds")
+   - Scenario inputs: CET1, deductions, AT1, T2, TREA
 
 2. **Retrieval (RAG)**
+   - Indexes all documents in `./data`
+   - Retrieves top-k excerpts relevant to the question and templates
+   - Each excerpt includes paragraph ID for citation tracking
 
-   * Indexes `./data` documents
-   * Retrieves top-k excerpts relevant to the question/templates
+3. **LLM Generation (Structured JSON)**
+   - Sends retrieved excerpts + question + schema to LLM
+   - Attempts to produce schema-compliant JSON
+   - Pipeline repairs/normalizes invalid outputs
 
-3. **LLM output (structured JSON)**
-
-   * Attempts to produce a schema-shaped JSON object
-   * If the SDK doesn’t support JSON mode or output is invalid, pipeline repairs/normalizes
-
-4. **Deterministic autofill fallback**
-
-   * If mandatory fields are missing but scenario inputs are present,
-     the pipeline deterministically populates the extract values
-     and attaches citations from retrieved excerpts
-   * This keeps the prototype stable for demos while preserving traceability
+4. **Deterministic Autofill Fallback**
+   - If mandatory fields are missing but scenario inputs exist
+   - Pipeline deterministically populates values
+   - Attaches citations from retrieved excerpts
+   - Ensures demo stability while preserving traceability
 
 5. **Validation**
+   - **Missing field checks**: Flags null mandatory fields
+   - **Arithmetic consistency**:
+     - `CET1_NET = CET1_GROSS - CET1_DEDUCTIONS`
+     - `TIER1_TOTAL = CET1_NET + AT1`
+     - `TOTAL_OWN_FUNDS = TIER1_TOTAL + T2`
+   - **Ratio calculations**: All ratios derived from TREA
+   - **Sanity checks**: Unit consistency, ratio bounds
+   - **Citation requirements**: Every field must have at least one citation
 
-   * Missing mandatory fields
-   * Arithmetic checks:
-
-     * CET1_NET = CET1_GROSS - CET1_DEDUCTIONS
-     * TIER1_TOTAL = CET1_NET + AT1
-     * TOTAL_OWN_FUNDS = TIER1_TOTAL + T2
-     * Ratios derived from TREA
-   * Ratio sanity checks and unit consistency
-
-6. **Exports + Audit**
-
-   * CSV/XLSX extracts generated
-   * `audit_log.json` includes per-field citations and notes
-   * `validation_report.json` captures flags
+6. **Export + Audit**
+   - CSV/XLSX extracts generated in `outputs/`
+   - `audit_log.json` includes per-field citations and notes
+   - `validation_report.json` captures all flags and warnings
 
 ---
 
 ## Expected Calculations (Example)
 
-If:
+### Input Scenario:
+- CET1 gross = 520
+- CET1 deductions = 45
+- AT1 = 80
+- T2 = 60
+- TREA = 4750
 
-* CET1 gross = 520
-* CET1 deductions = 45
-* AT1 = 80
-* T2 = 60
-* TREA = 4750
-
-Then:
-
-* CET1 net = 475
-* Tier 1 = 555
-* Total own funds = 615
-* CET1 ratio = 475 / 4750 * 100 = 10.00%
+### Calculated Outputs:
+- **CET1 net** = 520 - 45 = **475**
+- **Tier 1 total** = 475 + 80 = **555**
+- **Total own funds** = 555 + 60 = **615**
+- **CET1 ratio** = (475 / 4750) × 100 = **10.00%**
+- **Tier 1 ratio** = (555 / 4750) × 100 = **11.68%**
+- **Total capital ratio** = (615 / 4750) × 100 = **12.95%**
 
 ---
 
-## Outputs
+## Output Files
 
-After a run, check `outputs/`:
+After running the pipeline, check `outputs/` directory:
 
-* `corep_C0100_extract.csv`
-* `corep_C0200_extract.csv`
-* `corep_extracts.xlsx` (if enabled)
-* `audit_log.json`
-* `validation_report.json`
+| File | Description |
+|------|-------------|
+| `corep_C0100_extract.csv` | Own Funds extract in CSV format |
+| `corep_C0200_extract.csv` | Capital Ratios extract in CSV format |
+| `corep_extracts.xlsx` | Combined Excel workbook (if enabled in UI) |
+| `audit_log.json` | Complete audit trail with field-level citations |
+| `validation_report.json` | Validation results with errors and warnings |
 
-Note: Output files are intentionally not tracked by git (except `outputs/.gitkeep`).
+**Note**: Output files are intentionally not tracked by git (except `outputs/.gitkeep`).
 
 ---
 
 ## Troubleshooting
 
-### Corpus status shows NOT READY
+### Corpus status shows "NOT READY"
 
-* Add at least one `.pdf`, `.txt`, or `.md` file into `data/`
-* Click **Refresh corpus** in the sidebar
+**Problem**: No documents indexed for retrieval
+
+**Solution**:
+1. Add at least one `.pdf`, `.txt`, or `.md` file into `data/`
+2. Click **Refresh corpus** in the sidebar
+3. Wait for indexing to complete
+
+---
 
 ### LLM errors or empty structured output
 
-* Verify `.env` contains a valid `OPENAI_API_KEY`
-* Ensure you restarted Streamlit after changing `.env`
-* Ensure retrieval has excerpts (non-empty Retrieval Transparency panel)
+**Problem**: API connection or authentication issues
+
+**Solution**:
+1. Verify `.env` contains a valid `OPENAI_API_KEY`
+2. Ensure you restarted Streamlit after changing `.env`
+3. Check API key has sufficient credits/quota
+4. Ensure retrieval has excerpts (check Retrieval Transparency panel)
+
+---
 
 ### Validation FAIL (mandatory fields null)
 
-* If retrieval is empty, fields must remain null for traceability
-* Ensure you have at least one document in `data/` and refresh corpus
-* If documents exist, the deterministic autofill fallback will populate values using scenario inputs
+**Problem**: Fields remain null after processing
+
+**Causes & Solutions**:
+- **Empty retrieval**: Ensure documents exist in `data/` and refresh corpus
+- **Missing citations**: If no relevant excerpts found, fields stay null for traceability
+- **Autofill disabled**: Check that scenario inputs are provided
+- **Expected behavior**: If documents exist, autofill fallback will populate using scenario inputs
+
+---
 
 ### Windows file path issues
 
-Run the app from the project root:
+**Problem**: Module import errors or path not found
 
+**Solution**:
+Always run from project root:
 ```bash
-cd path\to\corep_reporting_assistant
+cd C:\path\to\corep_reporting_assistant
 streamlit run app.py
 ```
 
 ---
 
-## Safety and Traceability
+### Output files not appearing
 
-* Every populated field must include at least one citation from retrieved excerpts.
-* If the required citation does not exist, the value should remain `null`.
-* This prototype is designed to support analysts, not replace regulatory interpretation.
+**Problem**: Files not generated in `outputs/` directory
+
+**Solution**:
+1. Check console for error messages
+2. Ensure `outputs/` directory exists
+3. Verify write permissions on `outputs/` directory
+4. Check validation passed (files only generated on success)
 
 ---
-::contentReference[oaicite:0]{index=0}
+
+## Safety and Traceability
+
+### Design Principles
+
+1. **Citation Requirement**: Every populated field must include at least one citation from retrieved excerpts
+2. **Null Preservation**: If the required citation does not exist, the value remains `null`
+3. **Human-in-the-Loop**: This prototype is designed to support analysts, not replace regulatory interpretation
+4. **Audit Trail**: Complete lineage from source document → retrieval → field population
+5. **Validation Transparency**: All checks and failures explicitly logged
+
+### Important Disclaimers
+
+- ⚠️ **Not Legal Advice**: This tool provides information support only
+- ⚠️ **Human Review Required**: All outputs must be verified by qualified analysts
+- ⚠️ **Prototype Status**: Not intended for production regulatory submission
+- ⚠️ **Data Privacy**: Ensure no sensitive/confidential data in demo documents
+
+---
+
+## Development Notes
+
+### Technology Stack
+
+- **Frontend**: Streamlit
+- **LLM**: OpenAI GPT-4 Turbo
+- **RAG**: Custom lightweight implementation with vector embeddings
+- **Data Processing**: Pandas, NumPy
+- **Export Formats**: CSV, XLSX (openpyxl), JSON
+
+### Extensibility
+
+To add new COREP templates:
+1. Define schema in `core/llm_prompts.py`
+2. Add validation rules in `core/pipeline.py`
+3. Update export logic for new template
+4. Add corresponding documents to `data/`
+
+---
+
+## License
+
+This is a prototype for demonstration purposes. Use at your own risk.
+
+---
+
+## Contact
+
+For questions or feedback about this prototype, please contact the development team.
+
+---
+
+## Version History
+
+- **v0.1.0** (Initial Prototype)
+  - C01.00 Own Funds extract
+  - C02.00 Capital Ratios extract
+  - Basic RAG with PDF/TXT/MD support
+  - Deterministic validation
+  - Audit logging
+  - CSV/XLSX export
+
+---
+
+## Future Enhancements
+
+- [ ] Additional COREP templates (C03.00, C04.00, etc.)
+- [ ] Advanced validation rules engine
+- [ ] Multi-period comparison
+- [ ] Enhanced document preprocessing
+- [ ] Collaborative review workflow
+- [ ] API endpoint for integration
+- [ ] Advanced citation visualization
+
+---
+
+**Last Updated**: 2025-02-06
 ```
