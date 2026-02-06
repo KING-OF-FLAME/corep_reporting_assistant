@@ -1,6 +1,4 @@
-I'll create a comprehensive README file with the complete directory structure and all details in a canvas artifact.
 
-```markdown
 # COREP Reporting Assistant (Prototype)
 
 Streamlit prototype for an **LLM-assisted PRA COREP Regulatory Reporting Assistant** for UK banks.
