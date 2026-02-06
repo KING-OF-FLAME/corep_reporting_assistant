@@ -1,175 +1,77 @@
-Below are the **complete contents** for the non-code foundation files you requested: `requirements.txt`, `.env.example`, `.gitignore`, and `README.md` for the project:
+```markdown
+# COREP Reporting Assistant (Prototype)
 
-Directory (unchanged)
+Streamlit prototype for an **LLM-assisted PRA COREP Regulatory Reporting Assistant** for UK banks. The demo supports a constrained subset of COREP focused on:
 
-```
-corep_reporting_assistant/
-  app.py
-  core/
-    pipeline.py
-    rag.py
-    llm_prompts.py
-    utils.py
-  data/
-    README.md
-  outputs/
-    .gitkeep
-  .env.example
-  .gitignore
-  requirements.txt
-  README.md
-```
+- **C01.00 Own Funds (extract)**
+- **C02.00 Capital Ratios (extract)**
+
+It accepts a natural-language question + simple scenario inputs, retrieves relevant guidance excerpts (RAG), generates/repairs structured JSON output, runs deterministic validation checks, and exports CSV/XLSX plus an audit log showing which excerpts justify each populated field.
+
+**Important**: This tool is for **information support for reporting analysts**. It is **not legal advice**. Outputs require **human review**.
 
 ---
 
-## `requirements.txt`
+## Features
 
-```txt
-streamlit>=1.31,<2.0
-openai>=1.40,<2.0
-python-dotenv>=1.0,<2.0
-
-pydantic>=2.7,<3.0
-jsonschema>=4.21,<5.0
-
-pandas>=2.1,<3.0
-numpy>=1.26,<3.0
-
-requests>=2.31,<3.0
-pypdf>=4.0,<5.0
-
-scikit-learn>=1.3,<2.0
-
-openpyxl>=3.1,<4.0
-```
-
-Why this is “minimal but powerful”
-
-* Streamlit UI
-* OpenAI client
-* Simple, reliable retrieval via TF-IDF (scikit-learn) instead of heavy vector DB dependencies
-* PDF parsing + XLSX export
-* Strong schema validation (jsonschema) + typed models (pydantic)
+- Streamlit UI with premium-style layout
+- Lightweight local RAG (PDF/TXT/MD ingestion) with paragraph-level IDs
+- Structured output contract (JSON) consumed by the rest of the pipeline
+- Deterministic validation checks (missing fields, arithmetic consistency, unit/ratio sanity)
+- Deterministic audit log derived from citations attached to each field
+- Exports:
+  - `outputs/corep_C0100_extract.csv`
+  - `outputs/corep_C0200_extract.csv`
+  - `outputs/corep_extracts.xlsx` (optional toggle)
+  - `outputs/audit_log.json`
+  - `outputs/validation_report.json`
 
 ---
 
-## `.env.example`
+## Repository Structure
 
-```env
-# OpenAI
-OPENAI_API_KEY=replace_me
-OPENAI_MODEL=gpt-4.1-mini
-
-# Retrieval / RAG
-# Where you keep source docs to ingest (PDF / TXT). Default is ./data
-RAG_SOURCE_DIR=./data
-
-# Where the chunk index is saved (jsonl + pickle). Default is ./data/index
-RAG_INDEX_DIR=./data/index
-
-# Retrieval config
-RAG_TOP_K=6
-
-# App defaults
-DEFAULT_REPORTING_CURRENCY=GBP
-DEFAULT_UNIT=millions
-```
-
----
-
-## `.gitignore`
-
-```gitignore
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-*.egg-info/
-dist/
-build/
-
-# Virtual envs
-.venv/
-venv/
-env/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Streamlit
-.streamlit/secrets.toml
-
-# Env files
-.env
-
-# Index / caches
-data/index/
-*.pickle
-*.pkl
-
-# Outputs
-outputs/*
-!outputs/.gitkeep
-
-# Logs
-*.log
-```
-
----
-
-## `README.md`
-
-```md
-# COREP Regulatory Reporting Assistant (Prototype)
-
-A Streamlit demo prototype for an LLM-assisted **PRA COREP reporting analyst helper** focused on a small, traceable subset of COREP:
-- **C 01.00 (Own Funds)** – key lines only
-- **C 02.00 (Capital ratios / requirements extract)** – key ratios only
-
-This is **information support** for regulatory reporting analysts. It is **not legal advice**. Always perform **human review** before any submission.
-
-## What the demo does (end-to-end)
-1. Accepts a natural-language question + a simple reporting scenario (numbers like CET1, deductions, TREA).
-2. Retrieves relevant regulatory text excerpts (PRA Rulebook references + BoE COREP instructions + EBA pages you ingest).
-3. Uses an OpenAI model (`gpt-4.1-mini`) to produce **structured JSON** aligned to a fixed schema for the chosen template extract.
-4. Runs basic validation checks (missing fields, arithmetic consistency, units/currency).
-5. Renders a clean, human-readable "Excel-like" extract table in the UI.
-6. Exports:
-   - CSV (and optionally XLSX) extracts
-   - `audit_log.json` with per-cell citations and justification
-   - `validation_report.json`
-
-## Project structure
 ```
 
 corep_reporting_assistant/
 app.py
 core/
-pipeline.py
-rag.py
 llm_prompts.py
+rag.py
+pipeline.py
 utils.py
 data/
 README.md
+demo_corep_instructions.txt
+index/                 (generated; ignored by git)
 outputs/
-.gitkeep
-.env.example
+.gitkeep               (committed)
+*.csv, *.xlsx, *.json  (generated; ignored by git)
+.env                     (local only; ignored by git)
+.env.example             (committed)
 .gitignore
 requirements.txt
 README.md
 
 ````
 
+---
+
 ## Setup
-### 1) Create a virtual environment
+
+### 1) Create and activate a virtual environment (recommended)
+
+Windows (PowerShell or CMD):
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # macOS/Linux
-# .venv\Scripts\activate    # Windows
+.venv\Scripts\activate
 ````
+
+macOS/Linux:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
 
 ### 2) Install dependencies
 
@@ -179,54 +81,166 @@ pip install -r requirements.txt
 
 ### 3) Configure environment variables
 
-Copy `.env.example` to `.env` and fill in values:
+Copy `.env.example` to `.env` and set your OpenAI API key:
 
 ```bash
-cp .env.example .env
+copy .env.example .env
 ```
 
-Required:
+Edit `.env`:
 
-* `OPENAI_API_KEY`
-* `OPENAI_MODEL` (default: `gpt-4.1-mini`)
+* `OPENAI_API_KEY=...`
+* `OPENAI_MODEL=gpt-4.1-mini` (default)
 
-## Add documents for retrieval (RAG)
+Note: `.env` must never be committed.
 
-Put source documents into `./data`:
+---
 
-* PDFs (e.g., BoE COREP own funds instructions)
-* Text files (`.txt`) if you want to include extracted sections or notes
+## Add Documents for Retrieval (RAG)
 
-The prototype will ingest from `RAG_SOURCE_DIR` (default `./data`) and build an index in `RAG_INDEX_DIR` (default `./data/index`).
+The demo requires at least one source document in `./data` to produce grounded citations.
 
-Notes:
+### Minimum demo corpus (quick start)
 
-* This prototype uses a lightweight TF-IDF retrieval approach (fast + minimal dependencies).
-* Citations use stable `paragraph_id` values created during ingestion.
+A ready-to-use test file is included:
 
-## Run the app
+* `data/demo_corep_instructions.txt`
+
+You can replace/add:
+
+* PRA Rulebook extracts (PDF/TXT)
+* EBA COREP / ITS instructions (PDF/TXT/MD)
+
+### Refresh corpus
+
+From the app sidebar, click **Refresh corpus** to rebuild the local retrieval index at:
+
+* `data/index/` (generated and ignored by git)
+
+---
+
+## Run the App
 
 ```bash
 streamlit run app.py
 ```
 
-Open the local URL shown in the terminal.
+Open the URL shown in your terminal (usually `http://localhost:8501`).
+
+---
+
+## How the Demo Works (High-Level)
+
+1. **User input**
+
+   * Question: what to populate
+   * Scenario: CET1, deductions, AT1, T2, TREA (simple numeric inputs)
+
+2. **Retrieval (RAG)**
+
+   * Indexes `./data` documents
+   * Retrieves top-k excerpts relevant to the question/templates
+
+3. **LLM output (structured JSON)**
+
+   * Attempts to produce a schema-shaped JSON object
+   * If the SDK doesn’t support JSON mode or output is invalid, pipeline repairs/normalizes
+
+4. **Deterministic autofill fallback**
+
+   * If mandatory fields are missing but scenario inputs are present,
+     the pipeline deterministically populates the extract values
+     and attaches citations from retrieved excerpts
+   * This keeps the prototype stable for demos while preserving traceability
+
+5. **Validation**
+
+   * Missing mandatory fields
+   * Arithmetic checks:
+
+     * CET1_NET = CET1_GROSS - CET1_DEDUCTIONS
+     * TIER1_TOTAL = CET1_NET + AT1
+     * TOTAL_OWN_FUNDS = TIER1_TOTAL + T2
+     * Ratios derived from TREA
+   * Ratio sanity checks and unit consistency
+
+6. **Exports + Audit**
+
+   * CSV/XLSX extracts generated
+   * `audit_log.json` includes per-field citations and notes
+   * `validation_report.json` captures flags
+
+---
+
+## Expected Calculations (Example)
+
+If:
+
+* CET1 gross = 520
+* CET1 deductions = 45
+* AT1 = 80
+* T2 = 60
+* TREA = 4750
+
+Then:
+
+* CET1 net = 475
+* Tier 1 = 555
+* Total own funds = 615
+* CET1 ratio = 475 / 4750 * 100 = 10.00%
+
+---
 
 ## Outputs
 
-Exports are written to `./outputs`:
+After a run, check `outputs/`:
 
-* `corep_C01_extract.csv`
-* `corep_C02_extract.csv`
+* `corep_C0100_extract.csv`
+* `corep_C0200_extract.csv`
+* `corep_extracts.xlsx` (if enabled)
 * `audit_log.json`
 * `validation_report.json`
 
-`outputs/.gitkeep` ensures the directory exists in git.
+Note: Output files are intentionally not tracked by git (except `outputs/.gitkeep`).
 
-## Prototype scope guardrails
+---
 
-* Only populates a small, curated set of key lines in C01 and C02 (template "extracts").
-* Every populated cell must have at least one citation to retrieved regulatory text.
-* If a field cannot be supported by retrieved text or scenario inputs, it is set to `null` with a clear note.
+## Troubleshooting
 
+### Corpus status shows NOT READY
 
+* Add at least one `.pdf`, `.txt`, or `.md` file into `data/`
+* Click **Refresh corpus** in the sidebar
+
+### LLM errors or empty structured output
+
+* Verify `.env` contains a valid `OPENAI_API_KEY`
+* Ensure you restarted Streamlit after changing `.env`
+* Ensure retrieval has excerpts (non-empty Retrieval Transparency panel)
+
+### Validation FAIL (mandatory fields null)
+
+* If retrieval is empty, fields must remain null for traceability
+* Ensure you have at least one document in `data/` and refresh corpus
+* If documents exist, the deterministic autofill fallback will populate values using scenario inputs
+
+### Windows file path issues
+
+Run the app from the project root:
+
+```bash
+cd path\to\corep_reporting_assistant
+streamlit run app.py
+```
+
+---
+
+## Safety and Traceability
+
+* Every populated field must include at least one citation from retrieved excerpts.
+* If the required citation does not exist, the value should remain `null`.
+* This prototype is designed to support analysts, not replace regulatory interpretation.
+
+---
+::contentReference[oaicite:0]{index=0}
+```
