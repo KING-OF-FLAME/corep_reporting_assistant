@@ -1,0 +1,19 @@
+# COREP demo instructions (prototype test corpus)
+
+Paragraph 1:
+C01.00 Own Funds extract includes key own funds components such as CET1, AT1 and Tier 2. Values should be reported consistently in the selected unit and currency.
+
+Paragraph 2:
+CET1 after regulatory adjustments is derived by subtracting total CET1 deductions from CET1 before regulatory adjustments.
+
+Paragraph 3:
+Tier 1 capital is derived as CET1 after regulatory adjustments plus Additional Tier 1 (AT1).
+
+Paragraph 4:
+Total Own Funds is derived as Tier 1 capital plus Tier 2 (T2).
+
+Paragraph 5:
+C02.00 ratios may be derived using Total Risk Exposure Amount (TREA). CET1 ratio equals CET1 after regulatory adjustments divided by TREA, expressed as a percent.
+
+Paragraph 6:
+Tier 1 ratio equals Tier 1 capital divided by TREA, expressed as a percent. Total capital ratio equals Total Own Funds divided by TREA, expressed as a percent.
